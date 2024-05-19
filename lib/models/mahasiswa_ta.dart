@@ -26,7 +26,7 @@ class _MahasiswaTAState extends State<MahasiswaTA> {
     super.initState();
     http.Client()
         .get(Uri.parse(
-            'http://127.0.0.1:80/list-kp-ta.php?nip=1223545&kategori=124&status=PN'))
+            'http://127.0.0.1:80/list-kp-ta.php?nip=1223545&kategori=124&status=PM'))
         .then((response) => {
               setState(() {
                 dibimbing = jsonDecode(response.body);

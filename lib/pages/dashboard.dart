@@ -18,6 +18,34 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  List<dynamic> historyKP = [];
+  List<dynamic> historyTA = [];
+  String? nama;
+  @override
+  void initState() {
+    super.initState();
+    http.Client().get(Uri.parse('http://127.0.0.1:80/dosen.php?nip=1223545'))
+    .then((response) => {
+      setState(()
+      {
+        nama = jsonDecode(response.body)[0]['nama'];
+    })
+    }
+    );
+
+    http.Client().get(Uri.parse('http://127.0.0.1:80/history.php?nip=1223545'))
+    .then((response) => {
+      setState(()
+      {
+        
+        List<dynamic> history = jsonDecode(response.body);
+        historyKP = history.where((test) => test['jenis'] == 'KP').toList();
+        historyKP = history.where((test) => test['jenis'] == 'TA').toList();
+    })
+    }
+    );
+  }
+
   void test() async {
     
     // final dio = Dio();
@@ -58,7 +86,7 @@ class _DashboardState extends State<Dashboard> {
                 ).copyWith(height: 0),
               ),
               Text(
-                "Bu Fulanah",
+                nama ?? "Loading",
                 style: GoogleFonts.jost(
                   color: secondary,
                   fontSize: 40,
