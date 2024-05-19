@@ -6,26 +6,61 @@ import 'package:inkptatif/components/my_button.dart';
 import 'package:inkptatif/components/my_input_textfield.dart';
 import 'package:inkptatif/global.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class NilaiBimbinganKP extends StatefulWidget {
   final String nama;
   final String nim;
   final String foto;
   final String kategori;
+  final String statusDosen;
+  final List<dynamic> penilaian;
 
-  const NilaiBimbinganKP({
-    super.key,
-    required this.nama,
-    required this.foto,
-    required this.nim,
-    required this.kategori,
-  });
+  const NilaiBimbinganKP(
+      {super.key,
+      required this.nama,
+      required this.foto,
+      required this.nim,
+      required this.kategori,
+      required this.penilaian,
+      required this.statusDosen});
 
   @override
   State<NilaiBimbinganKP> createState() => _NilaiBimbinganKPState();
 }
 
 class _NilaiBimbinganKPState extends State<NilaiBimbinganKP> {
+  final List<TextEditingController> getInput = [];
+
+  @override
+  void dispose() {
+    int length = getInput.length;
+    for (int i = 0; i < length; i++) {
+      getInput[i].dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    int length = widget.penilaian.length;
+    for (int i = 0; i < length; i++) {
+      getInput.add(TextEditingController(text : widget.penilaian[i]['nilai'].toString()));
+    }
+  }
+
+  void onSave(context) async {
+    int length = widget.penilaian.length;
+    for (int i = 0; i < length; i++) {
+        await http.Client().get(Uri.parse('http://127.0.0.1:80/input-nilai.php?nip=1223545&nim=${widget.nim}&kategori=123&status=${widget.statusDosen}&nilai=${getInput[i].text.toString()}&id=${widget.penilaian[i]['id']}'));
+        print(widget.penilaian[i]['id']);
+    }
+    Navigator.of(context).pop();
+    // final decode = jsonDecode(test.body);
+    // print(widget.penilaian);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,10 +136,10 @@ class _NilaiBimbinganKPState extends State<NilaiBimbinganKP> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    MyInputTextField(teks: 'Usaha'),
-                    MyInputTextField(teks: 'Kreatifitas'),
-                    MyInputTextField(teks: 'Tanggung Jawab'),
-                    MyInputTextField(teks: 'Komunikasi dengan pembimbing'),
+                    for (int i = 0; i < getInput.length; i++)
+                      MyInputTextField(
+                          teks: widget.penilaian[i]['keterangan'],
+                          controller: getInput[i])
                   ],
                 ),
               ),
@@ -118,7 +153,11 @@ class _NilaiBimbinganKPState extends State<NilaiBimbinganKP> {
                 Expanded(
                   child: SizedBox(
                     width: 100,
-                    child: MyButton(backgroundBtn: secondary, text: 'Simpan'),
+                    child: MyButton(
+                      backgroundBtn: secondary,
+                      text: 'Simpan',
+                      onTap: () {onSave(context);},
+                    ),
                   ),
                 ),
                 SizedBox(width: 16),
@@ -128,6 +167,9 @@ class _NilaiBimbinganKPState extends State<NilaiBimbinganKP> {
                     child: MyButton(
                       backgroundBtn: customRed,
                       text: 'Batal',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
                   ),
                 ),

@@ -7,12 +7,15 @@ import 'package:inkptatif/components/my_button.dart';
 import 'package:inkptatif/global.dart';
 import 'package:inkptatif/pages/nilai_bimbingan_ta.dart';
 import 'package:inkptatif/pages/nilai_sidang_ta.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class DetailTA extends StatelessWidget {
+class DetailTA extends StatefulWidget {
   final String nama;
   final String nim;
   final String foto;
   final String kategori;
+  final String statusDosen;
 
   const DetailTA({
     super.key,
@@ -20,7 +23,39 @@ class DetailTA extends StatelessWidget {
     required this.foto,
     required this.nim,
     required this.kategori,
+    required this.statusDosen
   });
+
+    @override
+    State<DetailTA> createState() => _DetailTAState();
+}
+
+  class _DetailTAState extends State<DetailTA> {
+
+    List<dynamic>? decodedData;
+    List<dynamic>? penilaian;
+
+  @override
+  void initState() {
+    super.initState();
+    http.Client().get(Uri.parse('http://127.0.0.1:80/detail-kp-ta.php?nim=${widget.nim}&kategori=124&status=${widget.statusDosen}'))
+    .then((response) => {
+      setState(()
+      {
+        decodedData = jsonDecode(response.body);
+    })
+    }
+    );
+    http.Client().get(Uri.parse('http://127.0.0.1:80/penilaian.php?nip=1223545&nim=${widget.nim}&kategori=123&status=${widget.statusDosen}'))
+    .then((response) => {
+      setState(()
+      {
+        penilaian = jsonDecode(response.body);
+        print(penilaian);
+    })
+    }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +76,14 @@ class DetailTA extends StatelessWidget {
                       backgroundColor: secondary,
                       child: CircleAvatar(
                         radius: 72,
-                        backgroundImage: AssetImage(foto),
+                        backgroundImage: AssetImage(widget.foto),
                       ),
                     ),
                     SizedBox(
                       height: 8,
                     ),
                     Text(
-                      nama,
+                      widget.nama,
                       style: GoogleFonts.jost(
                         fontSize: 28,
                         color: primary,
@@ -56,7 +91,7 @@ class DetailTA extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      nim,
+                      widget.nim,
                       style: GoogleFonts.jost(
                         fontSize: 20,
                         color: secondary,
@@ -75,7 +110,7 @@ class DetailTA extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Bu Fulanah',
+                      decodedData == null ? "Loading " : decodedData!.isEmpty ? "-" : decodedData![0]['nama'],
                       style: GoogleFonts.jost(
                         fontSize: 24,
                         color: primary,
@@ -94,7 +129,7 @@ class DetailTA extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Pak Fulan',
+                      decodedData == null ? "Loading " : decodedData!.length == 1 ? "-" : decodedData![1]['nama'],
                       style: GoogleFonts.jost(
                         fontSize: 24,
                         color: primary,
@@ -113,7 +148,7 @@ class DetailTA extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Perancangan Sebuah Rancangan yang Akan Dirancangkan',
+                      decodedData == null ? "Loading " : decodedData!.isEmpty ? "-" : decodedData![0]['judul'],
                       style: GoogleFonts.jost(
                         fontSize: 24,
                         color: primary,
@@ -132,7 +167,7 @@ class DetailTA extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '30 Desember 2026 - FST.303',
+                      decodedData == null ? "Loading " : decodedData!.isEmpty ? "-" : decodedData![0]['tanggal'] + " - " + decodedData![0]['tempat'],
                       style: GoogleFonts.jost(
                         fontSize: 12,
                         color: primary,
@@ -163,25 +198,29 @@ class DetailTA extends StatelessWidget {
                       backgroundBtn: secondary,
                       text: 'Edit',
                       onTap: () {
-                        if (kategori == 'dibimbing') {
+                        if (widget.kategori == 'dibimbing' && penilaian != null) {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => NilaiBimbinganTA(
-                                        nama: nama,
-                                        kategori: kategori,
-                                        foto: foto,
-                                        nim: nim,
+                                        nama: widget.nama,
+                                        kategori: widget.kategori,
+                                        foto: widget.foto,
+                                        nim: widget.nim,
+                                        penilaian: penilaian!,
+                                        statusDosen: widget.statusDosen
                                       )));
-                        } else if (kategori == 'diuji') {
+                        } else if (widget.kategori == 'diuji' && penilaian != null) {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => NilaiSidangTA(
-                                        nama: nama,
-                                        kategori: kategori,
-                                        foto: foto,
-                                        nim: nim,
+                                        nama: widget.nama,
+                                        kategori: widget.kategori,
+                                        foto: widget.foto,
+                                        nim: widget.nim,
+                                        penilaian: penilaian!,
+                                        statusDosen: widget.statusDosen
                                       )));
                         }
                       },

@@ -6,7 +6,8 @@ import 'package:inkptatif/global.dart';
 import 'package:inkptatif/pages/detail_kp.dart';
 
 class MyKPList extends StatefulWidget {
-  final List<Map<String, dynamic>> items;
+  // final List<Map<String, dynamic>> items;
+  final List<dynamic> items;
   const MyKPList({super.key, required this.items});
 
   @override
@@ -34,6 +35,7 @@ class _MyKPListState extends State<MyKPList> {
                 foto: item['foto'],
                 nim: item['nim'],
                 kategori: item['kategori'],
+                statusDosen: item['statusDosen'],
               ),
             ));
           },

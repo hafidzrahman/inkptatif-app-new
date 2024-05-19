@@ -6,7 +6,7 @@ import 'package:inkptatif/global.dart';
 import 'package:inkptatif/pages/detail_ta.dart';
 
 class MyTAList extends StatefulWidget {
-  final List<Map<String, dynamic>> items;
+  final List<dynamic> items;
   const MyTAList({super.key, required this.items});
 
   @override
@@ -34,6 +34,7 @@ class _MyTAListState extends State<MyTAList> {
                 foto: item['foto'],
                 nim: item['nim'],
                 kategori: item['kategori'],
+                statusDosen : item['statusDosen']
               ),
             ));
           },

@@ -7,7 +7,8 @@ import 'package:inkptatif/global.dart';
 
 class MyInputTextField extends StatefulWidget {
   final String teks;
-  const MyInputTextField({super.key, required this.teks});
+  final TextEditingController controller;
+  const MyInputTextField({super.key, required this.teks, required this.controller});
 
   @override
   State<MyInputTextField> createState() => _MyInputTextFieldState();
@@ -39,6 +40,7 @@ class _MyInputTextFieldState extends State<MyInputTextField> {
               height: 50,
               width: 50,
               child: TextField(
+                controller: widget.controller,
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.digitsOnly

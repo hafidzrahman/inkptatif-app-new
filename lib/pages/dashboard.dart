@@ -1,9 +1,14 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:convert';
+import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inkptatif/components/my_historycard.dart';
 import 'package:inkptatif/global.dart';
+import "package:html/parser.dart";
+import "package:http/http.dart" as http;
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -13,6 +18,27 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  void test() async {
+    
+    // final dio = Dio();
+    // await dio.post('http://127.0.0.1/test.php', data : {'id' : 12, 'name' : 'dio'});
+    // final coba = await http.Client().get(Uri.parse('http://127.0.0.1:80/test.php'));
+    // final decode = jsonDecode(coba.body);
+    // print(decode);
+    // Map<String, Object> test = {'test': 'coba'};
+    // final encode = jsonEncode(test);
+
+    // var coba = await http.post(Uri.parse('http://127.0.0.1:80/test.php'),
+    //     headers: {
+
+    //       "Access-Control-Allow-Credentials" : "true",
+    //       "Access-Control-Allow-Methods" : "POST",
+    //       "Access-Control-Allow-Origin": "*"
+    //     });
+    // final decode = jsonDecode(coba.body);
+    // print(decode);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,6 +174,10 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 ],
               ),
+              TextButton(
+                onPressed: test,
+                child: Text("COBA TEKAN WOOOOOOOOOOOOOOOOOIIII"),
+              )
             ],
           ),
         ),

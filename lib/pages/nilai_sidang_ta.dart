@@ -6,12 +6,15 @@ import 'package:inkptatif/components/my_button.dart';
 import 'package:inkptatif/components/my_input_textfield.dart';
 import 'package:inkptatif/global.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class NilaiSidangTA extends StatefulWidget {
   final String nama;
   final String nim;
   final String foto;
   final String kategori;
+  final String statusDosen;
+  final List<dynamic> penilaian;
 
   const NilaiSidangTA({
     super.key,
@@ -19,6 +22,8 @@ class NilaiSidangTA extends StatefulWidget {
     required this.foto,
     required this.nim,
     required this.kategori,
+    required this.penilaian,
+    required this.statusDosen
   });
 
   @override
@@ -26,6 +31,38 @@ class NilaiSidangTA extends StatefulWidget {
 }
 
 class _NilaiSidangTAState extends State<NilaiSidangTA> {
+
+    final List<TextEditingController> getInput = [];
+
+ @override
+  void dispose() {
+    int length = getInput.length;
+    for (int i = 0; i < length; i++) {
+      getInput[i].dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    int length = widget.penilaian.length;
+    for (int i = 0; i < length; i++) {
+      getInput.add(TextEditingController(text : widget.penilaian[i]['nilai'].toString()));
+    }
+  }
+
+  void onSave(context) async {
+    int length = widget.penilaian.length;
+    for (int i = 0; i < length; i++) {
+        await http.Client().get(Uri.parse('http://127.0.0.1:80/input-nilai.php?nip=1223545&nim=${widget.nim}&kategori=123&status=${widget.statusDosen}&nilai=${getInput[i].text.toString()}&id=${widget.penilaian[i]['id']}'));
+        print(widget.penilaian[i]['id']);
+    }
+    Navigator.of(context).pop();
+    // final decode = jsonDecode(test.body);
+    // print(widget.penilaian);
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,35 +138,8 @@ class _NilaiSidangTAState extends State<NilaiSidangTA> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    MyInputTextField(teks: 'Sikap (attittude) presentasi'),
-                    MyInputTextField(teks: 'Kemampuan presentasi'),
-                    MyInputTextField(teks: 'Penguasaan terhadap materi'),
-                    MyInputTextField(
-                        teks: 'Urgensi terhadap masalah penelitian'),
-                    MyInputTextField(
-                        teks: 'Relevansi referensi dengan judul penelitian'),
-                    MyInputTextField(
-                        teks: 'Urgensi terhadap masalah penelitian'),
-                    MyInputTextField(
-                        teks:
-                            'Kesesuaian metodologi penelitian dengan pembahasan'),
-                    MyInputTextField(
-                        teks:
-                            'Teknik pengumpulan data sesuai standar laporan TA'),
-                    MyInputTextField(
-                        teks:
-                            'Tahapan analisa sesuai dengan standar laporan TA'),
-                    MyInputTextField(
-                        teks:
-                            'Tahapan rancangan sesuai dengan standar laporan TA'),
-                    MyInputTextField(
-                        teks:
-                            'Produk penelitian sesuai dengan standar laporan TA'),
-                    MyInputTextField(
-                        teks:
-                            'Tahapan pengujian sesuai dengan standar laporan TA'),
-                    MyInputTextField(
-                        teks: 'Hubungan permasalahan dengan hasil penelitian'),
+                    for (int i = 0; i < widget.penilaian.length; i++) 
+                    MyInputTextField(teks: widget.penilaian[i]['keterangan'], controller: getInput[i])
                   ],
                 ),
               ),
@@ -153,6 +163,9 @@ class _NilaiSidangTAState extends State<NilaiSidangTA> {
                     child: MyButton(
                       backgroundBtn: customRed,
                       text: 'Batal',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
                   ),
                 ),
