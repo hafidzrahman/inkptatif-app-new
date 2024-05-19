@@ -153,7 +153,7 @@ class _NilaiSidangTAState extends State<NilaiSidangTA> {
                 Expanded(
                   child: SizedBox(
                     width: 100,
-                    child: MyButton(backgroundBtn: secondary, text: 'Simpan'),
+                    child: MyButton(backgroundBtn: secondary, text: 'Simpan', onTap: () {onSave(context);}),
                   ),
                 ),
                 SizedBox(width: 16),

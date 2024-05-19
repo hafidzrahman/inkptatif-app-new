@@ -142,7 +142,7 @@ class _NilaiBimbinganTAState extends State<NilaiBimbinganTA> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    for (int i = 0; i < length; i++) 
+                    for (int i = 0; i < widget.penilaian.length; i++) 
                     MyInputTextField(teks: widget.penilaian[i]['keterangan'], controller: getInput[i])
                   ],
                 ),
@@ -157,7 +157,9 @@ class _NilaiBimbinganTAState extends State<NilaiBimbinganTA> {
                 Expanded(
                   child: SizedBox(
                     width: 100,
-                    child: MyButton(backgroundBtn: secondary, text: 'Simpan'),
+                    child: MyButton(backgroundBtn: secondary, text: 'Simpan', onTap: () {
+                      onSave(context);
+                    }),
                   ),
                 ),
                 SizedBox(width: 16),

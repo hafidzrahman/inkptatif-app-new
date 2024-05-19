@@ -155,7 +155,7 @@ class _NilaiSeminarKPState extends State<NilaiSeminarKP> {
                 Expanded(
                   child: SizedBox(
                     width: 100,
-                    child: MyButton(backgroundBtn: secondary, text: 'Simpan'),
+                    child: MyButton(backgroundBtn: secondary, text: 'Simpan', onTap: () {onSave(context);}),
                   ),
                 ),
                 SizedBox(width: 16),
