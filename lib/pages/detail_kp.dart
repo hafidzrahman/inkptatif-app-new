@@ -50,7 +50,7 @@ class DetailKP extends StatefulWidget {
       setState(()
       {
         penilaian = jsonDecode(response.body);
-        print(penilaian);
+        // print(penilaian);
     })
     }
     );
@@ -129,7 +129,7 @@ class DetailKP extends StatefulWidget {
                       ),
                     ),
                     Text(
-                      decodedData == null ? "Loading " : decodedData!.length == 1 ? "-" : decodedData![1]['nama'],
+                      decodedData == null ? "Loading " : decodedData!.length != 1 ? "-" : decodedData![1]['nama'],
                       style: GoogleFonts.jost(
                         fontSize: 24,
                         color: primary,
@@ -187,7 +187,7 @@ class DetailKP extends StatefulWidget {
                 Expanded(
                   child: SizedBox(
                     width: 100,
-                    child: MyButton(backgroundBtn: customGreen, text: penilaian == null ? "Loading" : penilaian![0]['nilai'].toString() ?? "Belum Dinilai"),
+                    child: MyButton(backgroundBtn: customGreen, text: penilaian == null ? "Loading" :  penilaian!.isEmpty ? "Belum dinilai" : penilaian![0]['nilai']),
                   ),
                 ),
                 SizedBox(width: 16),

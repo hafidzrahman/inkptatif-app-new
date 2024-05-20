@@ -14,6 +14,7 @@ and kategori.id_status = detail.id_status
 and penilaian.nip = :nip
 and penilaian.id_kategori = :kategori
 and penilaian.nim = mahasiswa.nim
+and penilaian.id_status = detail.id_status
 and substr(penilaian.id_status,2,3) = :status
 group by mahasiswa.nim, dosen.nip, kategori.id, penilaian.nilai;");
 
