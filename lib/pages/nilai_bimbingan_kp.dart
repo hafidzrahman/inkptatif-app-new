@@ -8,28 +8,33 @@ import 'package:inkptatif/global.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
-class NilaiBimbinganKP extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inkptatif/utils/session.dart';
+import 'package:inkptatif/utils/storage.dart';
+
+class NilaiBimbinganKP extends ConsumerStatefulWidget {
   final String nama;
   final String nim;
   final String foto;
   final String kategori;
-  final String statusDosen;
-  final List<dynamic> penilaian;
+  final String keterangan;
+  final List<dynamic> kriteria;
 
-  const NilaiBimbinganKP(
-      {super.key,
-      required this.nama,
-      required this.foto,
-      required this.nim,
-      required this.kategori,
-      required this.penilaian,
-      required this.statusDosen});
+  const NilaiBimbinganKP({
+    super.key,
+    required this.nama,
+    required this.foto,
+    required this.nim,
+    required this.kategori,
+    required this.kriteria,
+    required this.keterangan,
+  });
 
   @override
-  State<NilaiBimbinganKP> createState() => _NilaiBimbinganKPState();
+  ConsumerState<NilaiBimbinganKP> createState() => _NilaiBimbinganKPState();
 }
 
-class _NilaiBimbinganKPState extends State<NilaiBimbinganKP> {
+class _NilaiBimbinganKPState extends ConsumerState<NilaiBimbinganKP> {
   final List<TextEditingController> getInput = [];
 
   @override
@@ -44,21 +49,42 @@ class _NilaiBimbinganKPState extends State<NilaiBimbinganKP> {
   @override
   void initState() {
     super.initState();
-    int length = widget.penilaian.length;
+    int length = widget.kriteria.length;
     for (int i = 0; i < length; i++) {
-      getInput.add(TextEditingController(text : widget.penilaian[i]['nilai'].toString()));
+      getInput.add(TextEditingController());
     }
   }
 
-  void onSave(context) async {
-    int length = widget.penilaian.length;
+  void onSave() async {
+    int length = getInput.length;
     for (int i = 0; i < length; i++) {
-        await http.Client().get(Uri.parse('http://127.0.0.1:80/input-nilai.php?nip=1223545&nim=${widget.nim}&kategori=123&status=${widget.statusDosen}&nilai=${getInput[i].text.toString()}&id=${widget.penilaian[i]['id']}'));
-        print(widget.penilaian[i]['id']);
+      final id = widget.kriteria[i]['id'];
+      final nip = ref.read(storageProvider)['nip'];
+      final userInput = getInput[i].text;
+      final nim = widget.nim;
+      final kategori = widget.kategori;
+      final keterangan = widget.keterangan;
+      try {
+        Uri url =
+            Uri.parse('https://inkptatif.xyz/input-nilai/input-nilai.php');
+        final result = await session.post(url, {
+          'nilai': userInput,
+          'id': id,
+          'nip': nip,
+          'nim': nim,
+          'id_kategori': kategori,
+          'id_keterangan': keterangan,
+        });
+
+        print(result);
+        if (context.mounted) {
+          return;
+        }
+        Navigator.of(context).pop();
+      } catch (error) {
+        print(error);
+      }
     }
-    Navigator.of(context).pop();
-    // final decode = jsonDecode(test.body);
-    // print(widget.penilaian);
   }
 
   @override
@@ -68,114 +94,116 @@ class _NilaiBimbinganKPState extends State<NilaiBimbinganKP> {
       body: Container(
         padding: EdgeInsets.all(24),
         width: double.infinity,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 64,
-                  width: 64,
-                  child: CircleAvatar(
-                    radius: 76,
-                    backgroundColor: secondary,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 64,
+                    width: 64,
                     child: CircleAvatar(
-                      radius: 72,
-                      backgroundImage: AssetImage(widget.foto),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 16,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.nama,
-                      style: GoogleFonts.jost(
-                        fontSize: 28,
-                        color: primary,
-                        fontWeight: FontWeight.bold,
+                      radius: 76,
+                      backgroundColor: secondary,
+                      child: CircleAvatar(
+                        radius: 72,
+                        backgroundImage: AssetImage(widget.foto),
                       ),
                     ),
-                    Text(
-                      widget.nim,
-                      style: GoogleFonts.jost(
-                        fontSize: 20,
-                        color: secondary,
-                        fontWeight: FontWeight.w500,
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.nama,
+                        style: GoogleFonts.jost(
+                          fontSize: 28,
+                          color: primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        widget.nim,
+                        style: GoogleFonts.jost(
+                          fontSize: 20,
+                          color: secondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                height: 24,
+                decoration: BoxDecoration(
+                  border: BorderDirectional(
+                      bottom: BorderSide(color: primary, width: 4)),
+                ),
+              ),
+              SizedBox(
+                height: 24,
+              ),
+              Text(
+                'Nilai Bimbingan KP',
+                style: GoogleFonts.jost(
+                  fontSize: 32,
+                  color: secondary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 500,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      for (int i = 0; i < getInput.length; i++)
+                        MyInputTextField(
+                            teks: widget.kriteria[i]['penilaian'],
+                            controller: getInput[i])
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 24,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      width: 100,
+                      child: MyButton(
+                        backgroundBtn: secondary,
+                        text: 'Simpan',
+                        onTap: onSave,
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-            Container(
-              height: 24,
-              decoration: BoxDecoration(
-                border: BorderDirectional(
-                    bottom: BorderSide(color: primary, width: 4)),
-              ),
-            ),
-            SizedBox(
-              height: 24,
-            ),
-            Text(
-              'Nilai Bimbingan KP',
-              style: GoogleFonts.jost(
-                fontSize: 32,
-                color: secondary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(
-              height: 500,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for (int i = 0; i < getInput.length; i++)
-                      MyInputTextField(
-                          teks: widget.penilaian[i]['keterangan'],
-                          controller: getInput[i])
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 24,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    width: 100,
-                    child: MyButton(
-                      backgroundBtn: secondary,
-                      text: 'Simpan',
-                      onTap: () {onSave(context);},
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: SizedBox(
+                      width: 100,
+                      child: MyButton(
+                        backgroundBtn: customRed,
+                        text: 'Batal',
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: SizedBox(
-                    width: 100,
-                    child: MyButton(
-                      backgroundBtn: customRed,
-                      text: 'Batal',
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,0 +1,114 @@
+select penilaian.nilai, mahasiswa.nama, mahasiswa.nim from dosen, mahasiswa, kategori, detail, seminar, penilaian
+where dosen.nip = 1223545
+and kategori.id = 123 
+and dosen.nip = detail.nip 
+and kategori.id = detail.id_kategori 
+and detail.id_seminar = seminar.id 
+and detail.nim = mahasiswa.nim 
+and kategori.id_status = detail.id_status
+and penilaian.nip = 1223545
+and penilaian.id_kategori = 123
+and penilaian.nim = mahasiswa.nim
+and substr(penilaian.id_status,2,3) = 'PM'
+group by mahasiswa.nim, dosen.nip, kategori.id, penilaian.nilai;
+
+select penilaian.nilai, mahasiswa.nama, mahasiswa.nim from dosen, mahasiswa, kategori, detail, seminar, penilaian
+where dosen.nip = 1223545
+and kategori.id = 123 
+and dosen.nip = detail.nip 
+and kategori.id = detail.id_kategori 
+and detail.id_seminar = seminar.id 
+and detail.nim = mahasiswa.nim 
+and kategori.id_status = detail.id_status
+and penilaian.nip = 1223545
+and penilaian.id_kategori = 123
+and penilaian.nim = mahasiswa.nim
+group by mahasiswa.nim, dosen.nip, kategori.id, penilaian.nilai;
+
+INSERT INTO `penilaian` (`nilai`, `nim`, `nip`, `id_kriteria`, `id_kategori`, `id_status`) VALUES
+	(null, '223141', '1223545', '2', '123', '1PM'),
+	(null, '223141', '1223545', '4', '123', '1PM');
+
+INSERT INTO `penilaian` (`nilai`, `nim`, `nip`, `id_kriteria`, `id_kategori`, `id_status`) VALUES
+	(null, '223141', '1223343', '1', '124', '1PN'),
+	(null, '223141', '1223343', '3', '124', '1PN');
+
+INSERT INTO `kriteria` (`id`, `id_kategori`, `id_status`, `keterangan`) VALUES
+  	('1', '124', '1PN', 'Tanya Jawab'),
+	('2', '124', '1PN', 'Tanggung Jawab'),
+	('3', '124', '1PN', 'Ketenangan'),
+	('4', '124', '1PN', 'Kreatifitas'),
+	('5', '124', '1PN', 'Penguasaan Materi');
+
+INSERT INTO `detail` (`id_seminar`, `nip`, `nim`, `id_kategori`, `id_status`) VALUES
+	(555, '1223444', '223848', '123', '1PM');
+
+
+select mahasiswa.nama, mahasiswa.nim, kriteria.keterangan, penilaian.nilai from dosen, mahasiswa, kategori, detail, seminar, penilaian, kriteria
+where dosen.nip = 1223444
+and kategori.id = 123
+and dosen.nip = detail.nip 
+and kategori.id = detail.id_kategori 
+and detail.id_seminar = seminar.id 
+and detail.nim = mahasiswa.nim 
+and kategori.id_status = detail.id_status
+and penilaian.nip = 1223444
+and penilaian.id_kategori = 123
+and penilaian.nim = mahasiswa.nim
+and substr(penilaian.id_status,2,3) = 'PM'
+and mahasiswa.nim = 223848
+and penilaian.id_kriteria = kriteria.id
+and kategori.id_status = kriteria.id_status
+and kriteria.id_kategori = kategori.id;
+
+
+select seminar.judul, seminar.tempat, seminar.tanggal, dosen.nama, keterangan.jenis  from dosen, mahasiswa, kategori, detail, seminar, keterangan
+where kategori.id = 123
+and dosen.nip = detail.nip 
+and kategori.id = detail.id_kategori 
+and detail.id_seminar = seminar.id 
+and detail.nim = mahasiswa.nim 
+and mahasiswa.nim = 223141
+and detail.id_status = kategori.id_status
+and kategori.id_status = keterangan.id
+and substr(detail.id_status,2,3) = 'PM'
+and kategori.id_status = penilaian.id_status;
+
+
+INSERT INTO `detail` (`id_seminar`, `nip`, `nim`, `id_kategori`, `id_status`) VALUES
+  (111, '1223343', '223141', '123', '2PM');
+INSERT INTO `detail` (`id_seminar`, `nip`, `nim`, `id_kategori`, `id_status`) VALUES
+  (111, '1223444', '223141', '123', '1PN');
+
+select penilaian.nilai, mahasiswa.nama, mahasiswa.nim from dosen, mahasiswa, kategori, detail, seminar, penilaian
+where dosen.nip = 1223343
+and kategori.id = 124
+and dosen.nip = detail.nip 
+and kategori.id = detail.id_kategori 
+and detail.id_seminar = seminar.id 
+and detail.nim = mahasiswa.nim 
+and kategori.id_status = detail.id_status
+and penilaian.nip = 1223343
+and penilaian.id_kategori = 124
+and penilaian.nim = mahasiswa.nim
+and substr(penilaian.id_status,2,3) = 'PN';
+group by mahasiswa.nim, dosen.nip, kategori.id, penilaian.nilai;
+
+INSERT INTO `penilaian` (`nilai`, `nim`, `nip`, `id_kriteria`, `id_kategori`, `id_status`) VALUES
+	(95, '223242', '1223343', '2', '124', '1PM');
+
+ INSERT INTO `detail` (`id_seminar`, `nip`, `nim`, `id_kategori`, `id_status`) VALUES
+  (111, '1223343', '223141', '124', '1PN');
+
+
+select mahasiswa.nama, mahasiswa.nim from dosen, mahasiswa, kategori, detail, seminar 
+where dosen.nip = :nip 
+and kategori.id = :kategori 
+and dosen.nip = detail.nip 
+and kategori.id = detail.id_kategori 
+and detail.id_seminar = seminar.id 
+and detail.nim = mahasiswa.nim 
+and kategori.id_status = detail.id_status;
+ 
+update penilaian set nilai = 99
+where penilaian.id_kriteria = '2' and penilaian.nim = '223848' and penilaian.nip='1223444' and penilaian.id_kategori = '123' and penilaian.id_status = '1PM';

@@ -1,0 +1,3 @@
+select mahasiswa.nama, mahasiswa.nim, detail.id_status from dosen, mahasiswa, kategori, detail, keterangan where dosen.nip = '1223545' and dosen.nip = detail.nip and kategori.id = '123' and kategori.id = detail.id_kategori and detail.id_seminar = 111 and keterangan.id = kategori.id_status and detail.nim = mahasiswa.nim;
+
+select * from dosen, mahasiswa, kategori, detail, seminar where dosen.nip = '1223545' and kategori.id = 123 and dosen.nip = detail.nip and kategori.id = detail.id_kategori and detail.id_seminar = seminar.id and detail.nim = mahasiswa.nim and kategori.id_status = detail.id_status;

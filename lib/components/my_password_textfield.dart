@@ -7,12 +7,14 @@ class MyPasswordTextField extends StatefulWidget {
   final String labelText;
   final String initialValue;
   final bool obscureText;
+  void Function(String?) onSaved;
 
-  const MyPasswordTextField({
+  MyPasswordTextField({
     super.key, // Perbaiki penulisan key
     required this.labelText,
     this.initialValue = '',
     this.obscureText = true,
+    required this.onSaved,
   });
 
   @override
@@ -24,7 +26,7 @@ class _PasswordTextFieldState extends State<MyPasswordTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       obscureText: _obscureText,
       cursorColor: secondary,
       cursorWidth: 2,
@@ -55,6 +57,7 @@ class _PasswordTextFieldState extends State<MyPasswordTextField> {
         filled: true,
         fillColor: Colors.white,
       ),
+      onSaved: widget.onSaved,
     );
   }
 }

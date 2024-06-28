@@ -27,6 +27,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
+    print('currentIndex =  $_currentIndex');
     return BottomNavigationBar(
       unselectedLabelStyle: GoogleFonts.jost(
         color: customWhite,

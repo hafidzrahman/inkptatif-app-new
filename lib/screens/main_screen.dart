@@ -1,49 +1,76 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:inkptatif/components/my_appbar.dart';
 import 'package:inkptatif/components/my_drawer.dart';
-import 'package:inkptatif/components/my_bottomnavigationbar.dart';
+import 'package:inkptatif/global.dart';
 import 'package:inkptatif/pages/dashboard.dart';
-import 'package:inkptatif/pages/input_nilai_kp.dart';
-import 'package:inkptatif/pages/input_nilai_ta.dart';
+import 'package:inkptatif/pages/input_nilai_list.dart';
+import 'package:inkptatif/utils/storage.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+class _MainScreenState extends ConsumerState<MainScreen> {
+  // int _selectedIndex = 0;
 
-  List<Widget> widgetList = const [
+  List<Widget> widgetList = [
     Dashboard(),
-    InputNilaiKP(),
-    InputNilaiTA(),
+    InputNilaiList(
+      kategori: 'kp',
+    ),
+    InputNilaiList(kategori: 'ta'),
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    ref.read(indexBottomNavBarNotifierProvider.notifier).setIndex(index);
+    // setState(() {
+    //   _selectedIndex = index;
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
+    int _selectedIndex = ref.watch(indexBottomNavBarNotifierProvider);
     return Scaffold(
-      appBar: MyAppBar(elevation: 4),
-      drawer: MyDrawer(
-        onLogoutPressed: () => {},
-      ),
-      body: Center(
-        child: widgetList[_selectedIndex],
-      ),
-      bottomNavigationBar: MyBottomNavigationBar(
-        initialIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
-    );
+        appBar: MyAppBar(elevation: 4),
+        drawer: MyDrawer(
+          onLogoutPressed: () => {Navigator.of(context).pushNamed('/')},
+        ),
+        body: Center(
+          child: widgetList[_selectedIndex],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          unselectedLabelStyle: GoogleFonts.jost(
+            color: customWhite,
+          ),
+          onTap: _onItemTapped,
+          currentIndex: _selectedIndex,
+          selectedItemColor: secondary,
+          unselectedItemColor: customWhite,
+          selectedLabelStyle: GoogleFonts.jost(color: customWhite),
+          backgroundColor: primary,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Dashboard',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.switch_account_rounded),
+              label: 'Input Nilai KP',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.school),
+              label: 'Input Nilai TA',
+            ),
+          ],
+        ));
   }
 }

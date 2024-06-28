@@ -4,21 +4,91 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inkptatif/global.dart';
 import 'package:inkptatif/pages/detail_kp.dart';
+import 'package:inkptatif/utils/session.dart';
+import 'package:inkptatif/pages/input_nilai_detail.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inkptatif/utils/storage.dart';
 
-class MyKPList extends StatefulWidget {
-  // final List<Map<String, dynamic>> items;
+class MyKPList extends ConsumerWidget {
   final List<dynamic> items;
-  const MyKPList({super.key, required this.items});
+  final String keterangan;
+  const MyKPList({super.key, required this.items, required this.keterangan});
+
+  void onTap(BuildContext context, Map<dynamic, dynamic> item, WidgetRef ref) async {
+    try {
+      Uri url = Uri.parse(
+          "https://inkptatif.xyz/seminar/seminar.php?nim=${item['nim']}");
+      final decodedData = await session.get(url);
+
+      ref.read(storageProvider.notifier).addData('seminar', decodedData);
+
+      url = Uri.parse(
+          "https://inkptatif.xyz/input-nilai/kriteria.php?jenis_kategori=${item['kategori']}&jenis_keterangan=$keterangan");
+      final kriteria = await session.getArray(url);
+
+      ref.read(storageProvider.notifier).addData('kriteria', kriteria);
+
+      final result = ref.read(storageProvider);
+      print(result);
+
+      url = Uri.parse(
+          "https://inkptatif.xyz/penilaian/penilaian.php?nip=${result['nip']}&nim=${result['seminar']['nim']}");
+      final penilaian = await session.get(url);
+      ref.read(storageProvider.notifier).addData('penilaian', penilaian);
+
+
+      // Uri url =
+      //       Uri.parse('https://inkptatif.xyz/input-nilai/input-nilai.php');
+
+      //   final result = await session.post(url, {
+      //     'nilai': userInput,
+      //     'id': id,
+      //     'nip': nip,
+      //     'nim': nim,
+      //     'id_kategori': kategori,
+      //     'id_keterangan': keterangan,
+      //   });
+
+        // print(result);
+      
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => InputNilaiDetail()
+      ));
+
+      // Navigator.of(context).push(MaterialPageRoute(
+      //   builder: (context) => DetailKP(
+      //     nama: item['nama'],
+      //     nim: item['nim'],
+      //     foto: 'assets/img/profile.png',
+      //     kategori: item['kategori'],
+      //     keterangan: keterangan,
+      //     decodedData: decodedData,
+      //     kriteria: kriteria,
+      //   ),
+      // ));
+
+      // Navigator.of(context).push(MaterialPageRoute(
+      //   builder: (context) => (
+      //     nama: item['nama'],
+      //     nim: item['nim'],
+      //     foto: 'assets/img/profile.png',
+      //     kategori: item['kategori'],
+      //     keterangan: keterangan,
+      //     decodedData: decodedData,
+      //     kriteria: kriteria,
+      //   ),
+      // ));
+
+    } catch (error) {
+      print(error);
+      return;
+    }
+  }
 
   @override
-  State<MyKPList> createState() => _MyKPListState();
-}
-
-class _MyKPListState extends State<MyKPList> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListView.separated(
-      itemCount: widget.items.length,
+      itemCount: items.length,
       separatorBuilder: (BuildContext context, int index) => const Divider(
         color: Colors.grey,
         thickness: 1.0,
@@ -26,18 +96,10 @@ class _MyKPListState extends State<MyKPList> {
         endIndent: 20,
       ),
       itemBuilder: (BuildContext context, int index) {
-        final item = widget.items[index];
+        final item = items[index];
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => DetailKP(
-                nama: item['nama'],
-                foto: item['foto'],
-                nim: item['nim'],
-                kategori: item['kategori'],
-                statusDosen: item['statusDosen'],
-              ),
-            ));
+            onTap(context, item, ref);
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -52,7 +114,8 @@ class _MyKPListState extends State<MyKPList> {
                         width: 36,
                         child: Center(
                           child: CircleAvatar(
-                            backgroundImage: AssetImage(item['foto']),
+                            backgroundImage:
+                                AssetImage('assets/img/profile.png'),
                           ),
                         ),
                       ),
@@ -83,7 +146,7 @@ class _MyKPListState extends State<MyKPList> {
                 ),
                 Spacer(),
                 Text(
-                  item['status'],
+                  "Sudah",
                   style: GoogleFonts.jost(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

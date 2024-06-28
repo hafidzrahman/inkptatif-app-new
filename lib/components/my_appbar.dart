@@ -15,7 +15,17 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       iconTheme: IconThemeData(color: customWhite),
-      backgroundColor: primary,
+      flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(colors: [
+              Color.fromARGB(255, 2, 48, 71),
+              Color.fromARGB(255, 33, 158, 188)
+            ],
+            begin: Alignment.centerLeft,
+            end : Alignment.centerRight
+            ),
+          ),
+      ),
       elevation: elevation,
       bottom: bottom,
       title: RichText(
@@ -26,15 +36,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
             fontWeight: FontWeight.bold,
           ),
           children: [
-            const TextSpan(
-              text: "InKPTA",
-            ),
-            TextSpan(
-              text: "TIF",
-              style: TextStyle(
-                color: secondary,
-              ),
-            ),
+            
           ],
         ),
       ),

@@ -6,17 +6,17 @@ import 'package:inkptatif/components/my_button.dart';
 import 'package:inkptatif/components/my_input_textfield.dart';
 import 'package:inkptatif/global.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:inkptatif/utils/session.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inkptatif/utils/storage.dart';
 
-
-class NilaiSeminarKP extends StatefulWidget {
+class NilaiSeminarKP extends ConsumerStatefulWidget {
   final String nama;
   final String nim;
   final String foto;
   final String kategori;
-  final String statusDosen;
-  final List<dynamic> penilaian;
+  final List<dynamic> kriteria;
+  final String keterangan;
 
   const NilaiSeminarKP({
     super.key,
@@ -24,16 +24,15 @@ class NilaiSeminarKP extends StatefulWidget {
     required this.foto,
     required this.nim,
     required this.kategori,
-    required this.penilaian,
-    required this.statusDosen,
+    required this.kriteria,
+    required this.keterangan,
   });
 
   @override
-  State<NilaiSeminarKP> createState() => _NilaiSeminarKPState();
+  ConsumerState<NilaiSeminarKP> createState() => _NilaiSeminarKPState();
 }
 
-class _NilaiSeminarKPState extends State<NilaiSeminarKP> {
-
+class _NilaiSeminarKPState extends ConsumerState<NilaiSeminarKP> {
   final List<TextEditingController> getInput = [];
 
   @override
@@ -48,21 +47,42 @@ class _NilaiSeminarKPState extends State<NilaiSeminarKP> {
   @override
   void initState() {
     super.initState();
-    int length = widget.penilaian.length;
+    int length = widget.kriteria.length;
     for (int i = 0; i < length; i++) {
-      getInput.add(TextEditingController(text : widget.penilaian[i]['nilai'].toString()));
+      getInput.add(TextEditingController());
     }
   }
 
-  void onSave(context) async {
-    int length = widget.penilaian.length;
+  void onSave() async {
+    int length = getInput.length;
     for (int i = 0; i < length; i++) {
-        await http.Client().get(Uri.parse('http://127.0.0.1:80/input-nilai.php?nip=1223545&nim=${widget.nim}&kategori=123&status=${widget.statusDosen}&nilai=${getInput[i].text.toString()}&id=${widget.penilaian[i]['id']}'));
-        print(widget.penilaian[i]['id']);
+      final id = widget.kriteria[i]['id'];
+      final nip = ref.read(storageProvider)['nip'];
+      final userInput = getInput[i].text;
+      final nim = widget.nim;
+      final kategori = widget.kategori;
+      final keterangan = widget.keterangan;
+      try {
+        Uri url =
+            Uri.parse('https://inkptatif.xyz/input-nilai/input-nilai.php');
+        final result = await session.post(url, {
+          'nilai': userInput,
+          'id': id,
+          'nip': nip,
+          'nim': nim,
+          'id_kategori': kategori,
+          'id_keterangan': keterangan,
+        });
+
+        print(result);
+        if (context.mounted) {
+          return;
+        }
+        Navigator.of(context).pop();
+      } catch (error) {
+        print(error);
+      }
     }
-    Navigator.of(context).pop();
-    // final decode = jsonDecode(test.body);
-    // print(widget.penilaian);
   }
 
   @override
@@ -72,108 +92,116 @@ class _NilaiSeminarKPState extends State<NilaiSeminarKP> {
       body: Container(
         padding: EdgeInsets.all(24),
         width: double.infinity,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 64,
-                  width: 64,
-                  child: CircleAvatar(
-                    radius: 76,
-                    backgroundColor: secondary,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 64,
+                    width: 64,
                     child: CircleAvatar(
-                      radius: 72,
-                      backgroundImage: AssetImage(widget.foto),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 16,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.nama,
-                      style: GoogleFonts.jost(
-                        fontSize: 28,
-                        color: primary,
-                        fontWeight: FontWeight.bold,
+                      radius: 76,
+                      backgroundColor: secondary,
+                      child: CircleAvatar(
+                        radius: 72,
+                        backgroundImage: AssetImage(widget.foto),
                       ),
                     ),
-                    Text(
-                      widget.nim,
-                      style: GoogleFonts.jost(
-                        fontSize: 20,
-                        color: secondary,
-                        fontWeight: FontWeight.w500,
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.nama,
+                        style: GoogleFonts.jost(
+                          fontSize: 28,
+                          color: primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        widget.nim,
+                        style: GoogleFonts.jost(
+                          fontSize: 20,
+                          color: secondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                height: 24,
+                decoration: BoxDecoration(
+                  border: BorderDirectional(
+                      bottom: BorderSide(color: primary, width: 4)),
+                ),
+              ),
+              SizedBox(
+                height: 24,
+              ),
+              Text(
+                'Nilai Seminar KP',
+                style: GoogleFonts.jost(
+                  fontSize: 32,
+                  color: secondary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 500,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      for (int i = 0; i < getInput.length; i++)
+                        MyInputTextField(
+                          teks: widget.kriteria[i]['penilaian'],
+                          controller: getInput[i],
+                        )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 24,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      width: 100,
+                      child: MyButton(
+                          backgroundBtn: secondary,
+                          text: 'Simpan',
+                          onTap: onSave),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: SizedBox(
+                      width: 100,
+                      child: MyButton(
+                        backgroundBtn: customRed,
+                        text: 'Batal',
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-            Container(
-              height: 24,
-              decoration: BoxDecoration(
-                border: BorderDirectional(
-                    bottom: BorderSide(color: primary, width: 4)),
-              ),
-            ),
-            SizedBox(
-              height: 24,
-            ),
-            Text(
-              'Nilai Seminar KP',
-              style: GoogleFonts.jost(
-                fontSize: 32,
-                color: secondary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(
-              height: 500,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for (int i = 0; i < widget.penilaian.length; i++) 
-                    MyInputTextField(teks: widget.penilaian[i]['keterangan'], controller: getInput[i])
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 24,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    width: 100,
-                    child: MyButton(backgroundBtn: secondary, text: 'Simpan', onTap: () {onSave(context);}),
                   ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: SizedBox(
-                    width: 100,
-                    child: MyButton(
-                      backgroundBtn: customRed,
-                      text: 'Batal',
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

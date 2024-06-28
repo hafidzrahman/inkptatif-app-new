@@ -9,19 +9,22 @@ class CustomTextField extends StatelessWidget {
   final String initialValue;
   final bool obscureText;
   final IconButton? suffixIcon;
+  
+  void Function(String?) onSaved;
 
-  const CustomTextField({
+  CustomTextField({
     super.key,
     required this.labelText,
     this.prefixIcon,
     this.initialValue = '',
     this.obscureText = false,
     this.suffixIcon,
+    required this.onSaved,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       cursorColor: secondary,
       cursorWidth: 2,
       obscureText: obscureText,
@@ -45,6 +48,7 @@ class CustomTextField extends StatelessWidget {
         filled: true,
         fillColor: Colors.white,
       ),
+      onSaved: onSaved,
     );
   }
 }

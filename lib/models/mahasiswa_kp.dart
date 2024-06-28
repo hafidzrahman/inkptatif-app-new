@@ -4,120 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inkptatif/tabs/my_kp_list.dart';
 import 'package:inkptatif/global.dart';
-import "package:html/parser.dart";
-import "package:http/http.dart" as http;
-import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inkptatif/utils/storage.dart';
 
-class MahasiswaKP extends StatefulWidget {
-  const MahasiswaKP({super.key});
-
-  // List<Map<String, dynamic>> diuji = [];
-
-  @override
-  State<MahasiswaKP> createState() {
-    return _MahasiswaKPState();
-  }
-}
-
-class _MahasiswaKPState extends State<MahasiswaKP> {
+class MahasiswaKP extends ConsumerWidget {
   List<dynamic>? dibimbing;
   List<dynamic>? diuji;
 
-  @override
-  void initState() {
-    super.initState();
-    http.Client()
-        .get(Uri.parse(
-            'http://127.0.0.1:80/list-kp-ta.php?nip=1223545&kategori=123&status=PM'))
-        .then((response) => {
-              setState(() {
-                dibimbing = jsonDecode(response.body);
-                int i = 1;
-                if (dibimbing!.length > 1) {
-                  while (i < dibimbing!.length) {
-                    if (dibimbing![i - 1]['nama'] == dibimbing![i]['nama']) {
-                      dibimbing!.remove(dibimbing![i]);
-                    } else {
-                      i++;
-                    }
-                  }
-                }
-              })
-            });
-    http.Client()
-        .get(Uri.parse(
-            'http://127.0.0.1:80/list-kp-ta.php?nip=1223545&kategori=123&status=PN'))
-        .then((response) => {
-              setState(() {
-                diuji = jsonDecode(response.body);
-                int i = 1;
-                if (diuji!.length > 1) {
-                  while (i < diuji!.length) {
-                    if (diuji![i - 1]['nama'] == diuji![i]['nama']) {
-                      diuji!.remove(diuji![i]);
-                    } else {
-                      i++;
-                    }
-                  }
-                }
-              })
-            });
-  }
+  MahasiswaKP({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // List<Map<String, dynamic>> dibimbing = [
-    //   {
-    //     'nama': 'Abmi Sukma Edri',
-    //     'nim': '12050120341',
-    //     'foto': 'assets/img/profile.png',
-    //     'status': 'Sudah/90'
-    //   },
-    //   {
-    //     'nama': 'Ahmad Kurniawan',
-    //     'nim': '12250111514',
-    //     'foto': 'assets/img/profile.png',
-    //     'status': 'Sudah/90'
-    //   },
-    //   {
-    //     'nama': 'Muhammad Faruq',
-    //     'nim': '12250111514',
-    //     'foto': 'assets/img/profile.png',
-    //     'status': 'Belum'
-    //   },
-    //   {
-    //     'nama': 'Aufa Hajati',
-    //     'nim': '12250120338',
-    //     'foto': 'assets/img/profile.png',
-    //     'status': 'Sudah/90'
-    //   },
-    //   {
-    //     'nama': 'Daffa Finanda',
-    //     'nim': '12250111603',
-    //     'foto': 'assets/img/profile.png',
-    //     'status': 'Sudah/90'
-    //   },
-    // ];
-    // List<Map<String, dynamic>> diuji = [
-    //   {
-    //     'nama': 'Muhammad Faruq',
-    //     'nim': '12250111514',
-    //     'foto': 'assets/img/profile.png',
-    //     'status': 'Belum'
-    //   },
-    //   {
-    //     'nama': 'Muhammad Aditya',
-    //     'nim': '12050120341',
-    //     'foto': 'assets/img/profile.png',
-    //     'status': 'Sudah/90'
-    //   },
-    //   {
-    //     'nama': 'Hafidz Alhadid',
-    //     'nim': '12250111514',
-    //     'foto': 'assets/img/profile.png',
-    //     'status': 'Sudah/90'
-    //   },
-    // ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userData = ref.read(storageProvider);
+    dibimbing =
+        userData['dibimbing'].where((mhs) => mhs['kategori'] == 'kp').toList();
+    diuji = userData['diuji'].where((mhs) => mhs['kategori'] == 'kp').toList();
 
     return Scaffold(
       body: DefaultTabController(
@@ -184,34 +85,16 @@ class _MahasiswaKPState extends State<MahasiswaKP> {
                       : dibimbing!.isEmpty
                           ? Text("No Data Found")
                           : MyKPList(
-                              items: dibimbing!
-                                  .map((item) => {
-                                        ...item,
-                                        'kategori': 'dibimbing',
-                                        'foto': 'assets/img/profile.png',
-                                        'status': item['nilai'] == null
-                                            ? 'Belum'
-                                            : 'Sudah',
-                                         'statusDosen' : 'PM'  
-                                      })
-                                  .toList(),
+                              keterangan: 'dibimbing',
+                              items: dibimbing!,
                             ),
                   diuji == null
                       ? Text("Loading")
                       : diuji!.isEmpty
                           ? Text("No Data Found")
                           : MyKPList(
-                              items: diuji!
-                                  .map((item) => {
-                                        ...item,
-                                        'kategori': 'diuji',
-                                        'foto': 'assets/img/profile.png',
-                                        'status': item['nilai'] == null
-                                            ? 'Belum'
-                                            : 'Sudah',
-                                          'statusDosen' : 'PN'
-                                      })
-                                  .toList(),
+                              keterangan: 'diuji',
+                              items: diuji!,
                             ),
                 ],
               ),

@@ -4,20 +4,44 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inkptatif/global.dart';
 import 'package:inkptatif/pages/detail_ta.dart';
+import 'package:inkptatif/utils/session.dart';
 
-class MyTAList extends StatefulWidget {
+class MyTAList extends StatelessWidget {
+  final String keterangan;
   final List<dynamic> items;
-  const MyTAList({super.key, required this.items});
+  const MyTAList({super.key, required this.items, required this.keterangan});
 
-  @override
-  State<MyTAList> createState() => _MyTAListState();
-}
+  void onTap(BuildContext context, Map<dynamic, dynamic> item) async {
+    try {
+      Uri url = Uri.parse(
+          "https://inkptatif.xyz/seminar/seminar.php?nim=${item['nim']}");
+      final decodedData = await session.get(url);
 
-class _MyTAListState extends State<MyTAList> {
+      url = Uri.parse(
+          "https://inkptatif.xyz/input-nilai/kriteria.php?jenis_kategori=${item['kategori']}&jenis_keterangan=$keterangan");
+      final kriteria = await session.getArray(url);
+
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => DetailTA(
+          nama: item['nama'],
+          nim: item['nim'],
+          foto: 'assets/img/profile.png',
+          kategori: item['kategori'],
+          keterangan: keterangan,
+          decodedData: decodedData,
+          kriteria: kriteria,
+        ),
+      ));
+    } catch (error) {
+      print(error);
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemCount: widget.items.length,
+      itemCount: items.length,
       separatorBuilder: (BuildContext context, int index) => const Divider(
         color: Colors.grey,
         thickness: 1.0,
@@ -25,18 +49,10 @@ class _MyTAListState extends State<MyTAList> {
         endIndent: 20,
       ),
       itemBuilder: (BuildContext context, int index) {
-        final item = widget.items[index];
+        final item = items[index];
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => DetailTA(
-                nama: item['nama'],
-                foto: item['foto'],
-                nim: item['nim'],
-                kategori: item['kategori'],
-                statusDosen : item['statusDosen']
-              ),
-            ));
+            onTap(context, item);
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -51,7 +67,8 @@ class _MyTAListState extends State<MyTAList> {
                         width: 36,
                         child: Center(
                           child: CircleAvatar(
-                            backgroundImage: AssetImage(item['foto']),
+                            backgroundImage:
+                                AssetImage('assets/img/profile.png'),
                           ),
                         ),
                       ),
@@ -82,7 +99,7 @@ class _MyTAListState extends State<MyTAList> {
                 ),
                 Spacer(),
                 Text(
-                  item['status'],
+                  'Sudah/90',
                   style: GoogleFonts.jost(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
